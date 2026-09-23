@@ -14,8 +14,8 @@
 #DeDup v. 0.12.6 (Peltzer et al., 2016; https:// github.com/ apeltzer/ DeDup)
 #mapDamage v. 2.2.1 (Jónsson, Ginolhac, Schubert, Johnson, & Orlando, 2013; https:// github.com/ ginolhac/ mapDamage)
 
-##The reference genome used is the one of Zea mays ssp. mays inbred line B73 Zm-B73-REFERENCE-NAM-5.0 (Assembly accesion GCA_902167145.1). Released in july 2026 by the NAM sequencing consortium
-##The reference genome was generated with PacBio long-read sequencing, polished with Illumina reads, and Bionano optical map technology was used for scaffold assembly
+##The reference genome used is the one of Zea mays ssp. mexicana inbred line TIL18 Zx-TIL18-REFERENCE-PanAnd-1.0. Released in 2022 by Stitzer and collaborators (2025, prepint bioRxiv https://doi.org/10.1101/2025.01.22.633974)
+##The reference genome was generated with PacBio long-read sequencing, HiFi, and Bionano optical map technology was used for scaffold assembly
 #Create directory for the reference genome
 mkdir /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome
 #Download reference genome
@@ -116,52 +116,45 @@ done
   
   
 ##Indexing the reference genome
-./bwa index /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa
+./bwa index /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa
 
-samtools faidx /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa
+samtools faidx /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa
 
 ##Map trimmed and merged reads to the indexed reference genome
-./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.collapsed.sai \ 
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/ZM001.merged.fastq.gz
 
-for i in {002..020}; do
+for i in {001..020}; do
   echo "Mapeando muestra ZM${i}..."
   
   ./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.collapsed.sai \
-  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/ZM${i}.merged.fastq.gz
   
 done
 
 ./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/EB106.collapsed.sai \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
 /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/EB106.merged.fastq.gz
 
 ./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/EB107.collapsed.sai \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
 /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/EB107.merged.fastq.gz
 
 ./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/LB106.collapsed.sai \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
 /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/LB106.merged.fastq.gz
 
 ./bwa aln -t 8 -l 1024 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/LB107.collapsed.sai \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
 /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/LB107.merged.fastq.gz
 
 ##Convert mapped reads into a standars aligment format (SAM)
-./bwa samse -r @RG\\tID:ZM001\\tSM:ZM001 -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.sam \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.collapsed.sai \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/ZM001.merged.fastq.gz
 
-for i in {002..020}; do
+for i in {001..020}; do
   echo "Generando archivo SAM para ZM${i}..."
   
   ./bwa samse -r "@RG\tID:ZM${i}\tSM:ZM${i}" \
   -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.sam \
-  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.collapsed.sai \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/ZM${i}.merged.fastq.gz
   
@@ -173,7 +166,7 @@ for i in EB106 EB107 LB106 LB107; do
   
   ./bwa samse -r "@RG\tID:${i}\tSM:${i}" \
   -f /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.sam \
-  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.collapsed.sai \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/2_trimmed_merged/${i}.merged.fastq.gz
   
@@ -192,10 +185,9 @@ done
 
 ##Keep the mapped read and create a compressed BAM file
 ##The -F 4 option is for samtools to leave behind the reads that are not mapped
-samtools view -@ 8 -F 4 -Sbh -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.mapped.bam \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.sam
 
-for i in {002..020}; do
+
+for i in {001..020}; do
   echo "Filtrando y convirtiendo ZM${i} a BAM..."
   samtools view -@ 8 -F 4 -Sbh -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.bam \
   /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.sam
@@ -208,10 +200,8 @@ for i in EB106 EB107 LB106 LB107; do
 done
 
 ##Sort the BAM file by chromosome and position
-samtools sort -@ 8 -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.mapped.sorted.bam \
-/home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.mapped.bam
 
-for i in {002..020}; do
+for i in {001..020}; do
   echo "Ordenando lecturas para ZM${i}..."
   
   samtools sort -@ 8 -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.sorted.bam \
@@ -243,7 +233,7 @@ done
   -i /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM001.mapped.sorted.bam -m \
   -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/
   
- for i in {002..020}; do
+ for i in {001..020}; do
   echo "Removiendo duplicados de ZM${i}..."
   
   java -jar /home/jose-carlos-moreno-juarez/Descargas/DeDup-0.12.9.jar \
@@ -268,12 +258,12 @@ R install.packages(c("gam", "RcppGSL"))
 for i in {001..020}; do
   echo "Procesando muestra ZM${i}..."
   
-  #Create directories
+
   mkdir -p /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/ZM${i}
   
-  #MapDamage
+ 
   mapDamage -i /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.sorted_rmdup.bam \
-  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   -d /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/ZM${i}
   
 done
@@ -281,12 +271,12 @@ done
 for i in EB106 EB107 LB106 LB107; do
   echo "Procesando blanco ${i}..."
   
-  # 1. Crear el directorio específico para el blanco
+
   mkdir -p /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/${i}
   
-  # 2. Correr mapDamage y mandar el output (-d) al nuevo directorio
+
   mapDamage -i /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.mapped.sorted_rmdup.bam \
-  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   -d /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/${i}
   
 done
@@ -298,12 +288,12 @@ done
 for i in {001..020}; do
   echo "Procesando muestra ZM${i}..."
   
-  #Create directories
+
   mkdir -p /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/ZM${i}
   
-  #MapDamage
+
   mapDamage -i /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.sorted_rmdup.bam \
-  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   -d /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/ZM${i} -y 0.05 --plot-only
   
 done
@@ -311,12 +301,67 @@ done
 for i in EB106 EB107 LB106 LB107; do
   echo "Procesando blanco ${i}..."
   
-  # 1. Crear el directorio específico para el blanco
+
   mkdir -p /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/${i}
   
-  # 2. Correr mapDamage y mandar el output (-d) al nuevo directorio
+
   mapDamage -i /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.mapped.sorted_rmdup.bam \
-  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/unmasked.fa \
+  -r /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
   -d /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/5_aDNA_characteristics/${i} -y 0.05 --plot-only
   
 done
+
+
+for i in {001..020}; do
+  # Extrae la línea que dice "average length:" de samtools stats
+  samtools stats ~/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.sorted_rmdup.bam | grep "average length:"
+done
+
+for i in EB106 EB107 LB106 LB107; do
+  # Extrae la línea que dice "average length:" de samtools stats
+  samtools stats ~/Documentos/Maestria/screening_teocintle/4_mapping/${i}.mapped.sorted_rmdup.bam | grep "average length:"
+done
+
+
+##Filter out the reads of quality mapping less than 1
+for i in {001..020}; do
+  echo "Filtrando muestra ZM${i}..."
+  
+  samtools view -@ 8 -b -q 1 \
+  -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.filtered.bam \
+  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.mapped.sorted_rmdup.bam
+  
+done
+
+
+for i in EB106 EB107 LB106 LB107; do
+  echo "Filtrando blanco ${i}..."
+  
+  samtools view -@ 8 -b -q 1 \
+  -o /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.filtered.bam \
+  /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.mapped.sorted_rmdup.bam
+  
+done
+
+##Create directory with flagstats of filtered by mapping quality genome
+mkdir /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/Filtered_mapping_quality
+
+
+
+
+##Calculate the flagstats of the data sets with the filter by mapping quality
+for i in {001..020}; do
+  echo "Corriendo flagstat en ZM${i}..."
+  
+  samtools flagstat /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/ZM${i}.filtered.bam > /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/Filtered_mapping_quality/ZM${i}.filtered.flagstat.txt
+  
+done
+
+
+for i in EB106 EB107 LB106 LB107; do
+  echo "Corriendo flagstat en el blanco ${i}..."
+  
+  samtools flagstat /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/${i}.filtered.bam > /home/jose-carlos-moreno-juarez/Documentos/Maestria/screening_teocintle/4_mapping/Filtered_mapping_quality/${i}.filtered.flagstat.txt
+  
+done
+
