@@ -14,6 +14,7 @@ mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/3_quality_control
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics
+mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/6_filtering
 
 ##Remove adapters
 s_num=1
@@ -31,15 +32,42 @@ for i in {001..020}; do
     s_num=$((s_num + 1))
 done
 
+##Performing a quality trim only in the merged reads
+##We eliminate bases in the extremes with a Phred score less than 30
+##We eliminate reads shorter than 30 bp
+for i in {001..020}; do
+    echo "Processing sample ZM${i}..."
+
+    ./adapterremoval3 \
+        --in-file1 /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.merged.fastq.gz \
+        --out-prefix /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}_qfiltered \
+        --quality-trimming mott \
+        --trim-min-quality 30 \
+        --min-length 30 \
+        --out-format fastq.gz \
+        --threads 8
+
+done
+
+
 
 ##Check the quality of reads
 for i in {001..020}; do
   echo "done with sample ZM${i}..."
   
-  ./fastqc -t 8 --outdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/3_quality_control/ \
+  ./fastqc -t 8 --outdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/3_quality_control/wo_quality_filters \
     /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.merged.fastq.gz \
     /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.r1.fastq.gz \
     /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.r2.fastq.gz
+    
+done
+
+##Check the quality of filtered reads
+for i in {001..020}; do
+  echo "done with sample ZM${i}..."
+  
+  ./fastqc -t 8 --outdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/3_quality_control/ \
+    /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}_qfiltered.r1.fastq.gz
     
 done
 
@@ -55,7 +83,7 @@ for i in {001..020}; do
   
   bwa aln -t 8 -l 1024 -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.collapsed.sai \
   /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa.gz \
-  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.merged.fastq.gz
+  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}_qfiltered.r1.fastq.gz
   
 done
 
@@ -136,5 +164,31 @@ for i in {001..020}; do
   mapDamage -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted_rmdup.bam \
   -r /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa.gz \
   -d /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics/ZM${i}
+  
+done
+
+##I did this just to rescale the Y axis to be at 0.05, this dont re run the analysis, only does the rescaling
+##This doen NOT rerun the bayesian analysis
+for i in {001..020}; do
+  echo "rescaling ZM${i}..."
+  
+
+  mkdir -p /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics/ZM${i}
+  
+
+  mapDamage -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted_rmdup.bam \
+  -r /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa \
+  -d /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics/ZM${i} -y 0.05 --plot-only
+  
+done
+
+
+##Filter out the reads of quality mapping less than 30
+for i in {001..020}; do
+  echo "filtering sample ZM${i}..."
+  
+  samtools view -@ 8 -b -q 30 \
+  -o /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/6_filtering/ZM${i}.filtered_30q.bam \
+  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted_rmdup.bam
   
 done
