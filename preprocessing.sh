@@ -13,8 +13,9 @@ mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/3_quality_control
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping
+mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4.5_filtering
 mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics
-mkdir /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/6_filtering
+
 
 ##Remove adapters
 s_num=1
@@ -96,11 +97,11 @@ for i in {001..020}; do
   -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.sam \
   /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa.gz \
   /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.collapsed.sai \
-  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}.merged.fastq.gz
+  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}_qfiltered.r1.fastq.gz
   
 done
 
-
+##Esto seguiría
 ##Now we use samtools flagstat to calculate the proportion of mapped reads as a proxy for endogenous DNA
 for i in {001..020}; do
   echo "flagstats for ZM${i}..."
@@ -132,8 +133,19 @@ done
 for i in ZM{001..020}; do
   echo "done with files from ZM${i}..."
   
-  rm -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/${i}.sam
-  rm -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/${i}.mapped.bam
+  rm -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.sam
+  rm -f /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.bam
+  
+done
+
+
+##Filter out the reads of quality mapping less than 30
+for i in {001..020}; do
+  echo "filtering sample ZM${i}..."
+  
+  samtools view -@ 8 -b -q 30 \
+  -o /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4.5_filtering/ZM${i}.filtered_30q.bam \
+  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted.bam
   
 done
 
@@ -143,7 +155,7 @@ for i in {001..020}; do
   echo "processing sample ZM${i}..."
   
   dedup \
-  -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted.bam -m \
+  -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4.5_filtering/ZM${i}.filtered_30q.bam -m \
   -o /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/
   
 done
@@ -152,7 +164,7 @@ done
 
 ##Analyze ancient DNA associated characteristics
 ##I had to install these libraries for the bayesina analysis
-R install.packages(c("gam", "RcppGSL"))
+#R install.packages(c("gam", "RcppGSL"))
 
 for i in {001..020}; do
   echo "processing sample ZM${i}..."
@@ -161,7 +173,7 @@ for i in {001..020}; do
   mkdir -p /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics/ZM${i}
   
  
-  mapDamage -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted_rmdup.bam \
+  mapDamage -i /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.filtered_30q_rmdup.bam \
   -r /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/reference_genome/Zx-TIL18-REFERENCE-PanAnd-1.0.fa.gz \
   -d /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/5_aDNA_characteristics/ZM${i}
   
@@ -183,12 +195,4 @@ for i in {001..020}; do
 done
 
 
-##Filter out the reads of quality mapping less than 30
-for i in {001..020}; do
-  echo "filtering sample ZM${i}..."
-  
-  samtools view -@ 8 -b -q 30 \
-  -o /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/6_filtering/ZM${i}.filtered_30q.bam \
-  /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/4_mapping/ZM${i}.mapped.sorted_rmdup.bam
-  
-done
+
