@@ -87,6 +87,7 @@ for i in {001..020}; do
   /home/genconser/Documentos/JoseCarlos/paleogenomic_Zm/2_trimmed_merged/ZM${i}_qfiltered.r1.fastq.gz
   
 done
+### -l 1024 innactivates seed to allow a relaxed aligment at the ends. That is because we have misincorporations at the ends
 
 
 ##Convert mapped reads into a standars aligment format (SAM)
